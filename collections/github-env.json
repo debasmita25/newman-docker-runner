@@ -1,0 +1,36 @@
+{
+  "id": "github-env",
+  "name": "github-env",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.github.com",
+      "enabled": true
+    },
+    {
+      "key": "repoName",
+      "value": "qa_test_api001",
+      "enabled": true
+    },
+    {
+      "key": "searchQuery",
+      "value": "selenium",
+      "enabled": true
+    },
+    {
+      "key": "topicname1",
+      "value": "api-testing",
+      "enabled": true
+    },
+    {
+      "key": "topicname2",
+      "value": "automation",
+      "enabled": true
+    },
+    {
+      "key": "topicname3",
+      "value": "restassured",
+      "enabled": true
+    }
+  ]
+}

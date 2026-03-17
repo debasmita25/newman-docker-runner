@@ -1,0 +1,579 @@
+{
+  "info": {
+    "_postman_id": "88724c1b-db72-4b99-a450-ff7d82dd2336",
+    "name": "Collection_GitHub",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12159937"
+  },
+  "item": [
+    {
+      "name": "1_Create_Repository",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "\r",
+              "pm.test(\"Status Code is 201\",function()\r",
+              "{\r",
+              "    pm.response.to.have.status(201);\r",
+              "}\r",
+              "\r",
+              ");\r",
+              "var jsonBody = pm.response.json();\r",
+              "pm.test(\"Response Body contains the correct repository name\", function () {\r",
+              "    pm.expect(jsonBody.name).to.equal(pm.environment.get(\"repoName\"));\r",
+              "});\r",
+              "\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "let timestamp=Date.now();\r",
+              "\r",
+              "let repoName=\"repo_\"+timestamp;\r",
+              "\r",
+              "pm.environment.set(\"repoName\", repoName);\r",
+              "console.log(\"Repo Name : \"+repoName);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{GITHUB_TOKEN}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/vnd.github+json"
+          },
+          {
+            "key": "X-GitHub-Api-Version",
+            "value": "2022-11-28",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"name\":\"{{repoName}}\",\r\n\"description\":\"Repository created via Postman API test\",\r\n\"private\":false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/repos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "repos"
+          ]
+        },
+        "description": "Generated from cURL: curl -X POST https://api.github.com/user/repos \\\r\n-H \"Authorization: Bearer YOUR_TOKEN\" \\\r\n-H \"Accept: application/vnd.github+json\" \\\r\n-d '{\r\n\"name\":\"api-testing-repo\",\r\n\"description\":\"created using curl\",\r\n\"private\":false\r\n}'"
+      },
+      "response": []
+    },
+    {
+      "name": "2_Get_Repository",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check the response time is within 500 ms\",function(){\r",
+              "pm.expect(pm.response.responseTime).to.be.lessThan(500);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check if the security header has X-Frame-Options as deny \",function(){\r",
+              "    pm.expect(pm.response.headers.get(\"X-Frame-Options\")).to.eql(\"deny\");\r",
+              "});\r",
+              "\r",
+              "\r",
+              "\r",
+              "var jsonBody=pm.response.json();\r",
+              "pm.test(\"fullname has repo name\",function(){\r",
+              "pm.expect(jsonBody.full_name).to .include(pm.environment.get(\"repoName\"));\r",
+              "\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/repos/{{GITHUB_USERNAME}}/{{repoName}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "repos",
+            "{{GITHUB_USERNAME}}",
+            "{{repoName}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3_Update_Repository",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Description updated\", function () {\r",
+              "    pm.expect(jsonData.description).to.eql(\"Updated description via API automation\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{GITHUB_TOKEN}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/vnd.github+json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"description\": \"Updated description via API automation\",\r\n  \"private\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/repos/{{GITHUB_USERNAME}}/{{repoName}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "repos",
+            "{{GITHUB_USERNAME}}",
+            "{{repoName}}"
+          ]
+        },
+        "description": "Generated from cURL: curl -X PATCH https://api.github.com/repos/USERNAME/api-testing-repo \\\r\n-H \"Authorization: Bearer YOUR_TOKEN\" \\\r\n-H \"Accept: application/vnd.github+json\" \\\r\n-d '{\r\n  \"description\": \"Updated description via API\",\r\n  \"private\": true\r\n}'"
+      },
+      "response": []
+    },
+    {
+      "name": "4_Add_Repository_Topics",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonBody=pm.response.json();\r",
+              "pm.test(\"the three topics are attached to Repo\",function()\r",
+              "{\r",
+              " pm.expect(jsonBody.names).to.have.an(\"array\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"topics array has correct number of elements\",function() \r",
+              "{\r",
+              "    pm.expect(jsonBody.names.length).to.equal(3);\r",
+              "    pm.expect(jsonBody.names[0]).to.equal(pm.environment.get(\"topicname1\"));\r",
+              "     pm.expect(jsonBody.names[1]).to.equal(pm.environment.get(\"topicname2\"));\r",
+              "      pm.expect(jsonBody.names[2]).to.equal(pm.environment.get(\"topicname3\"));\r",
+              "\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{GITHUB_TOKEN}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/vnd.github+json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"names\": [\"{{topicname1}}\",\"{{topicname2}}\",\"{{topicname3}}\"]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/repos/{{GITHUB_USERNAME}}/{{repoName}}/topics",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "repos",
+            "{{GITHUB_USERNAME}}",
+            "{{repoName}}",
+            "topics"
+          ]
+        },
+        "description": "Generated from cURL: curl -X PUT https://api.github.com/repos/USERNAME/api-testing-repo/topics \\\r\n-H \"Authorization: Bearer YOUR_TOKEN\" \\\r\n-H \"Accept: application/vnd.github+json\" \\\r\n-d '{\r\n  \"names\": [\"api-testing\",\"automation\",\"restassured\"]\r\n}'"
+      },
+      "response": []
+    },
+    {
+      "name": "5_Get_Repository_Topics",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonBody=pm.response.json();\r",
+              "pm.test(\"the three topics are attached to Repo\",function()\r",
+              "{\r",
+              " pm.expect(jsonBody.names).to.have.an(\"array\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"topics array has correct number of elements\",function() \r",
+              "{\r",
+              "    pm.expect(jsonBody.names.length).to.equal(3);\r",
+              "    pm.expect(jsonBody.names[0]).to.equal(pm.environment.get(\"topicname1\"));\r",
+              "     pm.expect(jsonBody.names[1]).to.equal(pm.environment.get(\"topicname2\"));\r",
+              "      pm.expect(jsonBody.names[2]).to.equal(pm.environment.get(\"topicname3\"));\r",
+              "\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{GITHUB_TOKEN}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/vnd.github+json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"names\": [\"api-testing\",\"automation\",\"restassured\"]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/repos/{{GITHUB_USERNAME}}/{{repoName}}/topics",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "repos",
+            "{{GITHUB_USERNAME}}",
+            "{{repoName}}",
+            "topics"
+          ]
+        },
+        "description": "Generated from cURL: curl -X PUT https://api.github.com/repos/USERNAME/api-testing-repo/topics \\\r\n-H \"Authorization: Bearer YOUR_TOKEN\" \\\r\n-H \"Accept: application/vnd.github+json\" \\\r\n-d '{\r\n  \"names\": [\"api-testing\",\"automation\",\"restassured\"]\r\n}'"
+      },
+      "response": []
+    },
+    {
+      "name": "7_Search_Repository",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"status to be 200\",function(){\r",
+              "\r",
+              "pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"total_count to be greater than 0\",function(){\r",
+              "pm.expect(pm.response.json().total_count).to.be.greaterThan(0);});\r",
+              "\r",
+              "pm.test(\"total_count is number\",function()\r",
+              "{\r",
+              " pm.expect(pm.response.json().total_count).to.be.a(\"number\");\r",
+              "});\r",
+              "\r",
+              "//default page limit\r",
+              "pm.test(\"check the length of items array is equal to or less than 30\",function()\r",
+              "{\r",
+              "pm.expect(pm.response.json().items.length).to.be.lessThanOrEqual(30);\r",
+              "});\r",
+              "\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.github.com/search/repositories?q={{searchQuery}}&page=1",
+          "protocol": "https",
+          "host": [
+            "api",
+            "github",
+            "com"
+          ],
+          "path": [
+            "search",
+            "repositories"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "{{searchQuery}}"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8_List User Repositories",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "// pm.test(\"Repository present in list\", function () {\r",
+              "\r",
+              "//     let repos = pm.response.json();\r",
+              "//     let repoName = pm.environment.get(\"repoName\");\r",
+              "\r",
+              "//     let found = repos.some(repo => repo.name === repoName);\r",
+              "\r",
+              "//     pm.expect(found, \"Repository not found in returned page\").to.be.true;\r",
+              "\r",
+              "// });"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/{{GITHUB_USERNAME}}/repos?per_page=100&page=1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "{{GITHUB_USERNAME}}",
+            "repos"
+          ],
+          "query": [
+            {
+              "key": "per_page",
+              "value": "100"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6_Delete_Repository",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 204\", function () {\r",
+              "    pm.response.to.have.status(204);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{GITHUB_TOKEN}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/vnd.github+json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"names\": [\"api-testing\",\"automation\",\"restassured\"]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/repos/{{GITHUB_USERNAME}}/{{repoName}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "repos",
+            "{{GITHUB_USERNAME}}",
+            "{{repoName}}"
+          ]
+        },
+        "description": "Generated from cURL: curl -X PUT https://api.github.com/repos/USERNAME/api-testing-repo/topics \\\r\n-H \"Authorization: Bearer YOUR_TOKEN\" \\\r\n-H \"Accept: application/vnd.github+json\" \\\r\n-d '{\r\n  \"names\": [\"api-testing\",\"automation\",\"restassured\"]\r\n}'"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    },
+    {
+      "key": "username",
+      "value": ""
+    },
+    {
+      "key": "repoName",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "topicname1",
+      "value": ""
+    },
+    {
+      "key": "topicname2",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "topicname3",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}
