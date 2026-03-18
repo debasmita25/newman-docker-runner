@@ -67,7 +67,7 @@ pipeline {
                       newman run %COLLECTION_FILE% ^
                       -e %ENV_FILE% ^
                       --env-var "GITHUB_USERNAME=%API_USERNAME%" ^
-                      --env-var "GITHUB_PASSWORD=%API_PASSWORD%" ^
+                      --env-var "GITHUB_TOKEN=%API_PASSWORD%" ^
                       -r cli,html ^
                       --reporter-html-export report/report.html
                     """
