@@ -14,6 +14,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "debasmita25/newman:latest"
+        REPORT_PATH = "report/report.html"
     }
 
     stages {
@@ -23,27 +24,6 @@ pipeline {
                 checkout scm
             }
         }
-
-        // stage('Push Code to GitHub') {
-        //     steps {
-        //         withCredentials([usernamePassword(
-        //             credentialsId: 'github-creds',
-        //             usernameVariable: 'GIT_USER',
-        //             passwordVariable: 'GIT_TOKEN'
-        //         )]) {
-
-        //             bat '''
-        //             git config user.name "%GIT_USER%"
-        //             git config user.email "jenkins@local"
-
-        //             git add .
-        //             git commit -m "Auto commit from Jenkins" || echo No changes
-
-        //             git push https://%GIT_USER%:%GIT_TOKEN%@github.com/debasmita25/newman-docker-runner.git HEAD:master
-        //             '''
-        //         }
-        //     }
-        // }
 
         stage('Resolve Files') {
             steps {
@@ -82,35 +62,71 @@ pipeline {
 
                     bat """
                     docker run --rm ^
-  -v "%WORKSPACE%:/etc/newman" ^
+                      -v "%WORKSPACE%:/etc/newman" ^
+                      -w /etc/newman ^
                       -e GITHUB_USERNAME=%API_USERNAME% ^
                       -e GITHUB_PASSWORD=%API_PASSWORD% ^
- %DOCKER_IMAGE% ^
-  newman run %COLLECTION_FILE%  ^
-  -e %ENV_FILE% ^
-  -r cli,html ^
-  --reporter-html-export report/report.html """
+                      %DOCKER_IMAGE% ^
+                      newman run %COLLECTION_FILE% ^
+                      -e %ENV_FILE% ^
+                      --env-var "GITHUB_USERNAME=%API_USERNAME%" ^
+                      --env-var "GITHUB_PASSWORD=%API_PASSWORD%" ^
+                      -r cli,html ^
+                      --reporter-html-export report/report.html
+                    """
                 }
-            }
-        }
-
-        stage('Publish Report') {
-            steps {
-                publishHTML([
-                    reportDir: 'report',
-                    reportFiles: 'report.html',
-                    reportName: 'Newman Report',
-                    keepAll: true,
-                    alwaysLinkToLastBuild: true,
-                    allowMissing: true
-                ])
             }
         }
     }
 
     post {
+
         always {
+            echo "Publishing report and archiving artifacts..."
+
+            publishHTML([
+                reportDir: 'report',
+                reportFiles: 'report.html',
+                reportName: 'Newman Report',
+                keepAll: true,
+                alwaysLinkToLastBuild: true,
+                allowMissing: true
+            ])
+
             archiveArtifacts artifacts: 'report/**', allowEmptyArchive: true
+        }
+
+        success {
+            emailext (
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                <h3>Build Successful</h3>
+                <p><b>Job:</b> ${env.JOB_NAME}</p>
+                <p><b>Build:</b> #${env.BUILD_NUMBER}</p>
+                <p><b>Collection:</b> ${params.COLLECTION}</p>
+                <p><a href="${env.BUILD_URL}">View Build</a></p>
+                """,
+                to: "debasmita25@example.com",
+                mimeType: 'text/html',
+                attachmentsPattern: 'report/*.html'
+            )
+        }
+
+        failure {
+            emailext (
+                subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                <h3 style="color:red;">Build Failed</h3>
+                <p><b>Job:</b> ${env.JOB_NAME}</p>
+                <p><b>Build:</b> #${env.BUILD_NUMBER}</p>
+                <p><b>Collection:</b> ${params.COLLECTION}</p>
+                <p>Check console logs for error.</p>
+                <p><a href="${env.BUILD_URL}">View Build</a></p>
+                """,
+                to: "debasmita25@gmail.com",
+                mimeType: 'text/html',
+                attachmentsPattern: 'report/*.html'
+            )
         }
     }
 }
