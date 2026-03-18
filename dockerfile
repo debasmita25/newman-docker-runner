@@ -1,9 +1,20 @@
-FROM postman/newman
+# Use lightweight base
+FROM node:18-alpine
 
-RUN npm install -g newman-reporter-html
+# Install newman + reporter
+RUN npm install -g newman newman-reporter-html
 
+# Create non-root user
+RUN addgroup -S newman && adduser -S newman -G newman
+
+# Set working directory
 WORKDIR /etc/newman
 
+# Set permissions
+RUN chown -R newman:newman /etc/newman
 
+# Switch to non-root user
+USER newman
 
-# ENTRYPOINT ["sh","run-tests.sh"]
+# Default command (flexible)
+CMD ["sh"]

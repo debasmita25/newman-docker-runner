@@ -2,3 +2,4 @@ reports/
 .env
 node_modules/
 run-docker.bat
+readme.txt
