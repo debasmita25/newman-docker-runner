@@ -82,12 +82,14 @@ pipeline {
 
                     bat """
                     docker run --rm ^
-                      -v "%WORKSPACE%:/etc/newman" ^
+  -v "%WORKSPACE%:/etc/newman" ^
                       -e GITHUB_USERNAME=%API_USERNAME% ^
                       -e GITHUB_PASSWORD=%API_PASSWORD% ^
-                      %DOCKER_IMAGE% ^
-                      sh scripts/run-tests.sh %COLLECTION_FILE% %ENV_FILE%
-                    """
+ %DOCKER_IMAGE% ^
+  newman run %COLLECTION_FILE%  ^
+  -e %ENV_FILE% ^
+  -r cli,html ^
+  --reporter-html-export report/report.html """
                 }
             }
         }
