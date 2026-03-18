@@ -65,12 +65,12 @@ pipeline {
                       -v "%WORKSPACE%:/etc/newman" ^
                       -w /etc/newman ^
                       -e GITHUB_USERNAME=%API_USERNAME% ^
-                      -e GITHUB_PASSWORD=%API_PASSWORD% ^
+                      -e GITHUB_TOKEN=%API_PASSWORD% ^
                       %DOCKER_IMAGE% ^
                       newman run %COLLECTION_FILE% ^
                       -e %ENV_FILE% ^
-                      --env-var "GITHUB_USERNAME=%API_USERNAME%" ^
-                      --env-var "GITHUB_PASSWORD=%API_PASSWORD%" ^
+                      --env-var "GITHUB_USERNAME=%GITHUB_USERNAME%" ^
+                      --env-var "GITHUB_PASSWORD=%GITHUB_TOKEN%" ^
                       -r cli,html ^
                       --reporter-html-export report/report.html
                     """
