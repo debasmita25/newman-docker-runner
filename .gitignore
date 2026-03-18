@@ -1,3 +1,4 @@
 reports/
 .env
 node_modules/
+run-docker.bat
