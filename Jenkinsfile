@@ -24,26 +24,26 @@ pipeline {
             }
         }
 
-        stage('Push Code to GitHub') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'github-creds',
-                    usernameVariable: 'GIT_USER',
-                    passwordVariable: 'GIT_TOKEN'
-                )]) {
+        // stage('Push Code to GitHub') {
+        //     steps {
+        //         withCredentials([usernamePassword(
+        //             credentialsId: 'github-creds',
+        //             usernameVariable: 'GIT_USER',
+        //             passwordVariable: 'GIT_TOKEN'
+        //         )]) {
 
-                    bat '''
-                    git config user.name "%GIT_USER%"
-                    git config user.email "jenkins@local"
+        //             bat '''
+        //             git config user.name "%GIT_USER%"
+        //             git config user.email "jenkins@local"
 
-                    git add .
-                    git commit -m "Auto commit from Jenkins" || echo No changes
+        //             git add .
+        //             git commit -m "Auto commit from Jenkins" || echo No changes
 
-                    git push https://%GIT_USER%:%GIT_TOKEN%@github.com/debasmita25/newman-docker-runner.git HEAD:master
-                    '''
-                }
-            }
-        }
+        //             git push https://%GIT_USER%:%GIT_TOKEN%@github.com/debasmita25/newman-docker-runner.git HEAD:master
+        //             '''
+        //         }
+        //     }
+        // }
 
         stage('Resolve Files') {
             steps {
@@ -82,7 +82,7 @@ pipeline {
 
                     bat """
                     docker run --rm ^
-                      -v "%WORKSPACE%:/etc/newman" ^
+                      -v "%WORKSPACE%:/etc/newman/tests" ^
                       -e GITHUB_USERNAME=%API_USERNAME% ^
                       -e GITHUB_PASSWORD=%API_PASSWORD% ^
                       %DOCKER_IMAGE% ^
@@ -95,7 +95,7 @@ pipeline {
         stage('Publish Report') {
             steps {
                 publishHTML([
-                    reportDir: 'report',
+                    reportDir: 'tests/report',
                     reportFiles: 'report.html',
                     reportName: 'Newman Report',
                     keepAll: true,
