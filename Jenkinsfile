@@ -82,7 +82,7 @@ pipeline {
 
                     bat """
                     docker run --rm ^
-                      -v "%WORKSPACE%:/etc/newman/tests" ^
+                      -v "%WORKSPACE%:/etc/newman" ^
                       -e GITHUB_USERNAME=%API_USERNAME% ^
                       -e GITHUB_PASSWORD=%API_PASSWORD% ^
                       %DOCKER_IMAGE% ^
@@ -95,7 +95,7 @@ pipeline {
         stage('Publish Report') {
             steps {
                 publishHTML([
-                    reportDir: 'tests/report',
+                    reportDir: 'report',
                     reportFiles: 'report.html',
                     reportName: 'Newman Report',
                     keepAll: true,
